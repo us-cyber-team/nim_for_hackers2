@@ -37,6 +37,18 @@ proc hashStringLoseLose(input: string): uint32 =
     hash *= ord(i).uint32 + seed
   return hash
 
+import random
+var rng {.compileTime.} = initRand(0x1337DEADBEEF)  # initRand() does not work at compile time, needs a given seed
+const rVal = cast[uint32](rng.rand(uint32.high))
+proc hashStringLoseLoseObf(input: string): uint32 =
+  var 
+    seed: uint32 = 2
+    hash: uint32 = 0
+  for i in input:
+    hash += ord(i).uint32
+    hash *= ord(i).uint32 + seed
+  return hash xor rVal
+
 
 proc main() =
   # Hashing string "kernel32.dll" on all
@@ -50,6 +62,9 @@ proc main() =
 
   const loselose = hashStringLoseLose("kernel32.dll")
   echo &"[+] const hashStringLoseLose: 0x{$loselose.toHex}"
+
+  const loseloseObf = hashStringLoseLoseObf("kernel32.dll")
+  echo &"[+] const hashStringLoseLoseObf: 0x{$loseloseObf.toHex}"
 
 
 

